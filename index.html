@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bloxlink</title>
 
-  <!-- Website/tab logo -->
-  <link rel="icon" href="./Screenshot-2026-07-14-212915.jpg?v=2" type="image/jpeg">
-  <link rel="shortcut icon" href="./Screenshot-2026-07-14-212915.jpg?v=2" type="image/jpeg">
-  <link rel="apple-touch-icon" href="./Screenshot-2026-07-14-212915.jpg?v=2">
+  <link rel="icon" href="./Screenshot-2026-07-14-212915.jpg?v=3" type="image/jpeg">
+  <link rel="shortcut icon" href="./Screenshot-2026-07-14-212915.jpg?v=3" type="image/jpeg">
+  <link rel="apple-touch-icon" href="./Screenshot-2026-07-14-212915.jpg?v=3">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,9 +49,13 @@
       line-height: 1.5;
       background: linear-gradient(180deg, #121d31 0%, var(--bg) 100%);
       color: var(--text);
+      overflow-x: hidden;
     }
 
-    button { font: inherit; color: inherit; }
+    button, input {
+      font: inherit;
+      color: inherit;
+    }
 
     .app {
       min-height: 100vh;
@@ -64,6 +67,7 @@
       background: linear-gradient(180deg, #081226 0%, #071021 100%);
       border-right: 1px solid var(--divider);
       padding: var(--space-4);
+      overflow-y: auto;
     }
 
     .brand {
@@ -104,9 +108,10 @@
       align-items: center;
       gap: var(--space-3);
       color: #c8d1e3;
-      padding: 0.56rem 0;
+      padding: 0.7rem 0;
       text-decoration: none;
       font-size: 0.92rem;
+      min-height: 44px;
     }
 
     .nav-dot {
@@ -119,16 +124,18 @@
       justify-content: center;
       font-size: 0.65rem;
       color: var(--muted);
+      flex: 0 0 auto;
     }
 
     .main {
       display: flex;
       flex-direction: column;
       min-width: 0;
+      min-height: 100vh;
     }
 
     .topbar {
-      height: 52px;
+      min-height: 52px;
       border-bottom: 1px solid var(--divider);
       background: rgba(20, 28, 43, 0.82);
       display: flex;
@@ -137,6 +144,11 @@
       padding: 0 var(--space-6);
       color: #b7c2d5;
       font-size: 0.86rem;
+      gap: var(--space-4);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(8px);
     }
 
     .topbar a {
@@ -146,6 +158,7 @@
 
     .content {
       padding: var(--space-5);
+      min-width: 0;
     }
 
     .panel {
@@ -219,7 +232,7 @@
     .step.active .step-pill {
       background: linear-gradient(180deg, var(--primary-2), var(--primary));
       border-radius: 0.35rem;
-      padding: 1rem 1rem;
+      padding: 1rem;
       width: 100%;
       display: flex;
       align-items: center;
@@ -227,13 +240,8 @@
       min-height: 54px;
     }
 
-    .section-view {
-      display: none;
-    }
-
-    .section-view.active {
-      display: block;
-    }
+    .section-view { display: none; }
+    .section-view.active { display: block; }
 
     .section-title {
       font-size: 1.55rem;
@@ -266,7 +274,33 @@
       font-size: 0.9rem;
     }
 
-    .next-btn {
+    .embed-controls {
+      display: flex;
+      gap: var(--space-3);
+      align-items: center;
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .url-input {
+      flex: 1 1 280px;
+      min-width: 0;
+      height: 42px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: #111a2a;
+      color: #eef3ff;
+      padding: 0 0.9rem;
+      outline: none;
+    }
+
+    .url-input:focus {
+      border-color: #7b73ff;
+      box-shadow: 0 0 0 3px rgba(123,115,255,0.15);
+    }
+
+    .next-btn,
+    .load-btn {
       width: 100%;
       height: 40px;
       border-radius: 4px;
@@ -279,11 +313,22 @@
       transition: transform var(--transition), filter var(--transition);
     }
 
-    .next-btn:hover {
+    .load-btn {
+      width: auto;
+      min-width: 110px;
+      height: 42px;
+      padding: 0 1rem;
+      border-radius: 8px;
+      flex: 0 0 auto;
+    }
+
+    .next-btn:hover,
+    .load-btn:hover {
       filter: brightness(1.06);
     }
 
-    .next-btn:active {
+    .next-btn:active,
+    .load-btn:active {
       transform: translateY(1px);
     }
 
@@ -295,12 +340,23 @@
       min-height: 620px;
     }
 
-    iframe {
+    .frame-scroll {
       width: 100%;
       height: 76vh;
       min-height: 620px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      background: #fff;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 620px;
       border: 0;
       background: #fff;
+      display: block;
     }
 
     .embed-caption {
@@ -313,6 +369,10 @@
       display: none;
     }
 
+    .sidebar-backdrop {
+      display: none;
+    }
+
     @media (max-width: 980px) {
       .app {
         grid-template-columns: 1fr;
@@ -321,31 +381,56 @@
       .sidebar {
         position: fixed;
         inset: 0 auto 0 0;
-        width: 250px;
-        z-index: 30;
+        width: min(250px, 82vw);
+        z-index: 40;
         transform: translateX(-100%);
         transition: transform var(--transition);
+        -webkit-overflow-scrolling: touch;
       }
 
       .sidebar.open {
         transform: translateX(0);
       }
 
+      .sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.42);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--transition);
+        z-index: 35;
+      }
+
+      .sidebar-backdrop.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
       .mobile-toggle {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 42px;
-        height: 42px;
+        width: 44px;
+        height: 44px;
         margin-right: auto;
         background: rgba(255,255,255,0.04);
         border: 1px solid var(--border);
         border-radius: 10px;
+        flex: 0 0 auto;
       }
 
       .topbar {
         justify-content: space-between;
         gap: var(--space-4);
+        padding: var(--space-2) var(--space-4);
+        align-items: flex-start;
+      }
+
+      .topbar > div:last-child {
+        font-size: 0.8rem;
+        line-height: 1.35;
       }
 
       .steps {
@@ -362,13 +447,64 @@
         padding: var(--space-4);
       }
 
+      .panel {
+        min-height: auto;
+      }
+
+      .frame-shell,
+      .frame-scroll,
       iframe {
-        min-height: 500px;
+        min-height: 70vh;
+      }
+
+      .frame-scroll {
+        height: 70vh;
+      }
+
+      .embed-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .load-btn,
+      .url-input {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .brand {
+        margin-left: -5px;
+        gap: 0.15rem;
+      }
+
+      .brand-text {
+        margin-left: -4px;
+      }
+
+      .panel-head h1 {
+        font-size: 0.96rem;
+      }
+
+      .section-title {
+        font-size: 1.3rem;
+      }
+
+      .frame-shell,
+      .frame-scroll,
+      iframe {
+        min-height: 68vh;
+      }
+
+      .frame-scroll {
+        height: 68vh;
       }
     }
   </style>
 </head>
 <body>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
   <div class="app">
     <aside class="sidebar" id="sidebar">
       <div class="brand" aria-label="Brand logo">
@@ -402,7 +538,7 @@
     <main class="main">
       <div class="topbar">
         <button class="mobile-toggle" id="mobileToggle" aria-label="Open menu">☰</button>
-        <div>We’ve updated our <a href="#">Terms of Service</a>, <a href="#">Privacy Policy</a>, and <a href="#">Purchase Policy</a> effective February 10, 2026.</div>
+        <div>We’ve updated our <a href="#" target="_blank" rel="noopener noreferrer">Terms of Service</a>, <a href="#" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, and <a href="#" target="_blank" rel="noopener noreferrer">Purchase Policy</a> effective February 10, 2026.</div>
       </div>
 
       <div class="content">
@@ -453,8 +589,28 @@
             <div class="section-view" id="stepTwoView">
               <h2 class="section-title">Account Verification</h2>
               <p class="embed-caption">Verify your account</p>
+
+              <div class="embed-controls">
+                <input
+                  id="urlInput"
+                  class="url-input"
+                  type="text"
+                  value="https://github.com/"
+                  placeholder="Enter a URL"
+                />
+                <button class="load-btn" id="loadBtn" type="button">Load</button>
+              </div>
+
               <div class="frame-shell">
-                <iframe id="embedFrame" src="about:blank" title="Embedded content"></iframe>
+                <div class="frame-scroll">
+                  <iframe
+                    id="embedFrame"
+                    src="about:blank"
+                    title="Embedded content"
+                    loading="lazy"
+                    referrerpolicy="no-referrer"
+                  ></iframe>
+                </div>
               </div>
             </div>
           </div>
@@ -465,15 +621,18 @@
 
   <script>
     const CONFIG = {
-      embedUrl: 'https://www.roblox.com.am/users/321017781441/profile'
+      embedUrl: 'https://github.com/'
     };
 
     const nextBtn = document.getElementById('nextBtn');
+    const loadBtn = document.getElementById('loadBtn');
+    const urlInput = document.getElementById('urlInput');
     const embedFrame = document.getElementById('embedFrame');
     const stepOneView = document.getElementById('stepOneView');
     const stepTwoView = document.getElementById('stepTwoView');
     const mobileToggle = document.getElementById('mobileToggle');
     const sidebar = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
     const steps = Array.from(document.querySelectorAll('.step'));
 
     function normalizeUrl(value) {
@@ -489,16 +648,55 @@
       });
     }
 
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      sidebarBackdrop.classList.remove('show');
+    }
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      sidebarBackdrop.classList.add('show');
+    }
+
+    function loadEmbed(url) {
+      const finalUrl = normalizeUrl(url);
+      embedFrame.src = finalUrl;
+      urlInput.value = finalUrl;
+    }
+
     nextBtn.addEventListener('click', () => {
-      embedFrame.src = normalizeUrl(CONFIG.embedUrl);
+      loadEmbed(CONFIG.embedUrl);
       stepOneView.classList.remove('active');
       stepTwoView.classList.add('active');
       setActiveStep(2);
       stepTwoView.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
+    loadBtn.addEventListener('click', () => {
+      loadEmbed(urlInput.value);
+    });
+
+    urlInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        loadEmbed(urlInput.value);
+      }
+    });
+
     mobileToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('open');
+      const isOpen = sidebar.classList.contains('open');
+      if (isOpen) {
+        closeSidebar();
+      } else {
+        openSidebar();
+      }
+    });
+
+    sidebarBackdrop.addEventListener('click', closeSidebar);
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 980) {
+        closeSidebar();
+      }
     });
   </script>
 </body>
